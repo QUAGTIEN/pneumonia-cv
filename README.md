@@ -20,7 +20,7 @@ ESP32 tự phát WiFi. Điện thoại kết nối vào, mở trang web, chụp 
  └───────────────────────────────┘           └──────────────────────────────┘
 ```
 
-- Điện thoại làm phần nặng: đọc ảnh lớn, chuyển xám, thu nhỏ. ESP32 chỉ chạy mô hình.
+- CAMERA điện thoại: đọc ảnh lớn, chuyển xám, thu nhỏ. ESP32 chỉ chạy mô hình.
 - Ra quyết định dựa trên xác suất `p`:
   - `p < 0.033` là **Bình thường**.
   - `0.033 ≤ p < 0.22` là **Không chắc chắn** (nên chụp lại).
