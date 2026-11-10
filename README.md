@@ -1,7 +1,5 @@
 # Nhận diện viêm phổi từ ảnh X-quang trên ESP32
 
-> Dự án học tập, **không** dùng để chẩn đoán bệnh.
-
 Một mô hình AI nhỏ (MobileNetV2, 630 KB, int8) chạy ngay trên chip **ESP32-WROOM-32D**.
 ESP32 tự phát WiFi. Điện thoại kết nối vào, mở trang web, chụp ảnh phim X-quang và nhận kết quả:
 **Bình thường**, **Không chắc chắn** hoặc **Nghi viêm phổi**.
