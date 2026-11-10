@@ -1,0 +1,37 @@
+BAO CAO DANH GIA TREN ESP32 THAT (Module 6)
+==============================================================================
+Thoi diem   : 2026-11-09 19:45
+Chip        : ESP32-D0WD-V3 @ 240 MHz, PSRAM False
+Model       : 630 KB, anh 64x64, arena cap 176 KB (dung that 124 KB)
+Ket noi     : COM3 @ 921600 baud
+So anh      : 624/624 anh test chay thanh cong, loi 0
+Nguong      : 0.09 (chon tren VAL o Module 4)
+
+[CHI SO TREN TEST]
+Phien ban                nguong     acc     AUC  rec PNEU  rec NORM     bal    FP    FN
+ESP32                      0.50   0.888   0.950     0.926     0.825   0.875    41    29
+ESP32 @ nguong chon        0.09   0.846   0.950     0.985     0.615   0.800    90     6
+laptop int8                0.50   0.889   0.951     0.928     0.825   0.876    41    28
+laptop int8 @ nguong       0.09   0.841   0.951     0.987     0.598   0.793    94     5
+
+[MA TRAN NHAM LAN - ESP32 @ nguong 0.09]
+                  du doan NORMAL    du doan PNEU
+that NORMAL                  144              90
+that PNEUMONIA                 6             384
+
+[ESP32 so voi LAPTOP (.tflite int8, Module 4)]
+  Ty le cung nhan     : 99.20% (nguong 0.09) | 99.84% (nguong 0.5)   -> yeu cau >= 99%: DAT
+  Sai khac xac suat   : trung binh 0.0035, lon nhat 0.0469, 87.3% anh lech < 0.01
+  Anh khac nhan (5):
+    NORMAL/IM-0011-0001-0001.jpeg            ESP32 0.0859 | laptop 0.0977
+    NORMAL/IM-0023-0001.jpeg                 ESP32 0.0859 | laptop 0.0977
+    NORMAL/IM-0033-0001.jpeg                 ESP32 0.0781 | laptop 0.0977
+    NORMAL/NORMAL2-IM-0102-0001.jpeg         ESP32 0.0859 | laptop 0.0977
+    PNEUMONIA/person83_bacteria_407.jpeg     ESP32 0.0859 | laptop 0.0977
+
+[THOI GIAN TREN CHIP (Invoke)]
+  Trung binh 346.4 ms | nho nhat 346.3 ms | lon nhat 346.5 ms
+  Ca vong (truyen + chay) : 446 ms/anh, tong 278 s
+
+FP = NORMAL bi bao benh, FN = PNEUMONIA bi bo sot.
+Luu y: day la du an hoc tap, KHONG dung de chan doan benh.

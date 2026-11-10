@@ -1,0 +1,23 @@
+BAO CAO MODEL NHO (float32) - phien ban 'raw64a'
+============================================================
+Model: MobileNetV2 alpha=0.35, anh 64x64, equalize=False
+So tham so: 412,770 | epoch tot nhat: 35 | train 13.0 phut
+Nguong: 0.5
+
+[VAL, 762 anh]
+  Accuracy          : 0.930
+  ROC-AUC           : 0.995
+  Recall PNEUMONIA  : 0.908  (520/573)
+  Recall NORMAL     : 1.000  (189/189)
+  Balanced accuracy : 0.954
+  Nham: 0 NORMAL bi bao benh | 53 PNEUMONIA bi bo sot
+
+[TEST, 624 anh]
+  Accuracy          : 0.880
+  ROC-AUC           : 0.956
+  Recall PNEUMONIA  : 0.949  (370/390)
+  Recall NORMAL     : 0.765  (179/234)
+  Balanced accuracy : 0.857
+  Nham: 55 NORMAL bi bao benh | 20 PNEUMONIA bi bo sot
+
+Luu y: chon phien ban (raw / eq) theo ket qua VAL, khong theo TEST.

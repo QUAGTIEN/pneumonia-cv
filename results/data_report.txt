@@ -1,0 +1,15 @@
+BAO CAO DU LIEU MODEL NHO (Module 2)
+============================================================
+Nguon: data_split   |   Kich thuoc: 64x64 anh xam (uint8)
+Tien xu ly: xam -> thu nho canh dai ve 512 -> resize INTER_AREA (khong CLAHE, khong augment)
+
+Tap       NORMAL  PNEUMONIA    Tong     Mean     Std   Kiem tra
+train       1160       3310    4470    123.0    59.7   khop giai doan 1
+val          189        573     762    123.1    59.6   khop giai doan 1
+test         234        390     624    121.0    59.6   khop giai doan 1
+
+File: models\tiny\data64.npz  (21.4 MB)
+Anh mau: results\tiny\samples64.png  (hang duoi moi lop = sau can bang histogram)
+Thoi gian: 17 giay
+
+Ket luan: OK, so anh khop voi giai doan 1.

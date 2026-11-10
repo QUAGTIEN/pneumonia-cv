@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>Sàng lọc X-quang phổi</title>
+<style>
+:root{
+  --bg:#f3f5f7;--surface:#ffffff;--ink:#14202b;--ink2:#5b6875;--line:#e2e7ec;--soft:#eef2f5;
+  --accent:#0f6e8c;--accent-ink:#ffffff;--accent-soft:#e3f1f5;
+  --ok:#17834a;--ok-soft:#e7f5ec;--bad:#c2372f;--bad-soft:#fbeceb;--unc:#b36b00;--unc-soft:#fdf3e2;
+  --radius:16px;--shadow:0 1px 2px rgba(20,32,43,.06),0 4px 16px rgba(20,32,43,.05);
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0e1419;--surface:#161e25;--ink:#e6edf2;--ink2:#93a1ad;--line:#26313b;--soft:#1c262e;
+  --accent:#3fa9c9;--accent-ink:#06131a;--accent-soft:#16303a;
+  --ok:#4cc480;--ok-soft:#14291e;--bad:#ef6b62;--bad-soft:#331a19;--unc:#e9a43c;--unc-soft:#33270f;
+  --shadow:none;
+}}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+main{max-width:520px;margin:0 auto;padding:16px 16px 40px}
+
+/* ---------- Dau trang ---------- */
+header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:6px 2px 14px}
+.brand small{display:block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent)}
+.brand h1{margin:2px 0 0;font-size:22px;line-height:1.2;letter-spacing:-.01em}
+.pill{flex:none;display:inline-flex;align-items:center;gap:7px;padding:6px 11px;border-radius:999px;
+  background:var(--surface);border:1px solid var(--line);font-size:12px;font-weight:600;color:var(--ink2);white-space:nowrap}
+.dot{width:8px;height:8px;border-radius:50%;background:#9aa5af}
+.dot.on{background:var(--ok);box-shadow:0 0 0 3px var(--ok-soft)}
+.dot.off{background:var(--bad);box-shadow:0 0 0 3px var(--bad-soft)}
+#stTxt2{font-size:12px;color:var(--ink2);margin:-6px 2px 12px}
+.notice{font-size:12.5px;color:var(--ink2);background:var(--soft);border-radius:10px;padding:9px 12px;margin-bottom:14px}
+.notice b{color:var(--ink)}
+
+/* ---------- The ---------- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);padding:16px;margin-bottom:14px}
+.step{display:flex;align-items:center;gap:10px;margin:0 0 12px}
+.num{flex:none;width:24px;height:24px;border-radius:50%;background:var(--accent-soft);color:var(--accent);
+  font-size:12px;font-weight:800;display:grid;place-items:center}
+.step h2{margin:0;font-size:15px;font-weight:700}
+.muted{color:var(--ink2);font-size:13px}
+
+/* ---------- Nut ---------- */
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.btn{appearance:none;display:flex;align-items:center;justify-content:center;min-height:46px;padding:0 14px;
+  border-radius:12px;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  font:inherit;font-weight:650;cursor:pointer;text-align:center;-webkit-tap-highlight-color:transparent;
+  transition:transform .08s ease,background .15s ease}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.btn.block{width:100%}
+.btn:disabled{opacity:.5;cursor:default;transform:none}
+input[type=file]{display:none}
+.seg{display:inline-flex;background:var(--soft);border-radius:10px;padding:3px;gap:3px;margin-top:10px}
+.seg button{appearance:none;border:0;background:transparent;color:var(--ink2);font:inherit;font-size:13px;
+  font-weight:650;padding:7px 12px;border-radius:8px;cursor:pointer}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(0,0,0,.08)}
+
+/* ---------- Anh + khung cat ---------- */
+#stage{display:none;margin-top:14px;touch-action:none}
+#view{display:block;max-width:100%;margin:0 auto;border-radius:12px;background:#000}
+#cropHint{display:none;margin:8px 0 0}
+
+/* ---------- Xem truoc 64x64 ---------- */
+.prev{display:flex;gap:14px;align-items:center;margin-bottom:14px}
+.thumb{flex:none;padding:4px;border-radius:12px;background:var(--soft)}
+#small{display:block;width:104px;height:104px;border-radius:8px;image-rendering:pixelated;background:#000}
+#flatWarn{display:none;color:var(--bad);font-weight:600;margin-top:4px}
+
+/* ---------- Ket qua ---------- */
+#result{display:none;border-radius:var(--radius);padding:18px 16px;margin-bottom:14px;
+  background:var(--surface);border:1px solid var(--line);box-shadow:var(--shadow);position:relative;overflow:hidden}
+#result::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--c)}
+#result.normal{--c:var(--ok);--cs:var(--ok-soft)}
+#result.pneu{--c:var(--bad);--cs:var(--bad-soft)}
+#result.uncertain{--c:var(--unc);--cs:var(--unc-soft)}
+.kicker{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)}
+.verdict{display:inline-block;margin:6px 0 4px;padding:6px 12px;border-radius:10px;background:var(--cs);color:var(--c);
+  font-size:22px;font-weight:800;letter-spacing:.01em}
+#rNote{margin:4px 0 16px;color:var(--ink2);font-size:14px}
+.prob{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:8px}
+#rPct{font-size:30px;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.prob .muted{text-align:right}
+/* 3 vung chia deu (khong theo ty le tuyen tinh) de vung "Binh thuong" 0-3% khong bi lan at */
+.bar{position:relative;height:10px;border-radius:5px;margin:6px 0 6px;
+  background:linear-gradient(90deg,var(--ok) 0 33.33%,var(--unc) 33.33% 66.67%,var(--bad) 66.67% 100%)}
+.mk{position:absolute;top:50%;width:18px;height:18px;margin:-9px 0 0 -9px;border-radius:50%;
+  background:var(--surface);border:3px solid var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.25);transition:left .4s ease}
+.legend{display:grid;grid-template-columns:1fr 1fr 1fr;text-align:center;font-size:11.5px;color:var(--ink2)}
+.legend span:first-child{text-align:left}.legend span:last-child{text-align:right}
+.meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:12px;
+  border-top:1px solid var(--line);font-size:12.5px;color:var(--ink2);font-variant-numeric:tabular-nums}
+
+/* ---------- Lich su ---------- */
+#hist{list-style:none;margin:0;padding:0}
+#hist li{display:flex;justify-content:space-between;gap:8px;padding:9px 0;border-top:1px solid var(--line);font-size:13.5px}
+#hist li:first-child{border-top:0}
+#hist .t{font-weight:700}
+#hist .t.normal{color:var(--ok)}#hist .t.pneu{color:var(--bad)}#hist .t.uncertain{color:var(--unc)}
+#hist .v{color:var(--ink2);font-variant-numeric:tabular-nums}
+footer{text-align:center;font-size:12px;color:var(--ink2);margin-top:22px}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="brand">
+    <small>ESP32 · TinyML</small>
+    <h1>Sàng lọc X-quang phổi</h1>
+  </div>
+  <div class="pill"><span class="dot" id="dot"></span><span id="stTxt">Đang kết nối</span></div>
+</header>
+<p id="stTxt2"></p>
+<div class="notice"><b>Chỉ phục vụ học tập</b> – kết quả không dùng để chẩn đoán bệnh.</div>
+
+<section class="card">
+  <div class="step"><span class="num">1</span><h2>Chọn ảnh phim X-quang</h2></div>
+  <div class="btns">
+    <label class="btn primary" for="fCam">Chụp ảnh</label>
+    <label class="btn" for="fLib">Chọn từ thư viện</label>
+  </div>
+  <input type="file" id="fCam" accept="image/*" capture="environment">
+  <input type="file" id="fLib" accept="image/*">
+  <div id="stage"><canvas id="view"></canvas></div>
+  <p class="muted" id="cropHint">Kéo khung để ôm vừa tấm phim, kéo các góc để đổi kích thước.</p>
+  <div id="cropBtns" style="display:none">
+    <div class="seg"><button id="bFull" class="on">Toàn ảnh</button><button id="bCenter">Khung giữa</button></div>
+  </div>
+</section>
+
+<section class="card" id="prevCard" style="display:none">
+  <div class="step"><span class="num">2</span><h2>Ảnh gửi cho ESP32</h2></div>
+  <div class="prev">
+    <div class="thumb"><canvas id="small" width="64" height="64"></canvas></div>
+    <div class="muted">Ảnh đã chuyển xám và thu về 64×64, giống hệt lúc huấn luyện mô hình.
+      <div id="flatWarn">Ảnh gần như trơn – hãy chụp lại.</div>
+    </div>
+  </div>
+  <button class="btn primary block" id="bSend">Phân tích</button>
+</section>
+
+<section id="result">
+  <div class="kicker">Kết quả</div>
+  <div class="verdict" id="rTitle">—</div>
+  <p id="rNote"></p>
+  <div class="prob">
+    <div><div class="muted">Xác suất viêm phổi</div><div id="rPct">—</div></div>
+    <div class="muted" id="rP"></div>
+  </div>
+  <div class="bar" id="bar"><div class="mk" id="mk"></div></div>
+  <div class="legend"><span>Bình thường</span><span>Không chắc</span><span>Nghi viêm phổi</span></div>
+  <div class="meta"><span id="rMs"></span><span id="rRt"></span></div>
+</section>
+
+<section class="card" id="histCard" style="display:none">
+  <div class="step"><span class="num">3</span><h2>Các lần gần đây</h2></div>
+  <ol id="hist"></ol>
+</section>
+
+<footer>Mô hình MobileNetV2 int8 chạy trực tiếp trên ESP32 · không cần Internet</footer>
+</main>
+
+<script>
+"use strict";
+// ======================= TIEN XU LY ANH (giong scripts/common.py) =======================
+// Python: gray = cv2.cvtColor(BGR2GRAY); shrink canh dai <= 512 (INTER_AREA); resize 64x64 (INTER_AREA)
+var SIZE = 64, MAX_SIDE = 512, MAX_PIX = 8e6;
+
+// Xam theo cong thuc so nguyen cua OpenCV: (R*4899 + G*9617 + B*1868 + 8192) >> 14
+function toGray(rgba, n) {
+  var g = new Uint8Array(n);
+  for (var i = 0, j = 0; i < n; i++, j += 4)
+    g[i] = (rgba[j] * 4899 + rgba[j + 1] * 9617 + rgba[j + 2] * 1868 + 8192) >> 14;
+  return g;
+}
+// Bang trong so lay trung binh vung (giong INTER_AREA khi thu nho)
+function areaTab(src, dst) {
+  var s = src / dst, tab = [];
+  for (var d = 0; d < dst; d++) {
+    var f0 = d * s, f1 = Math.min(f0 + s, src), cw = f1 - f0, ws = [];
+    for (var i = Math.floor(f0); i < Math.ceil(f1); i++) {
+      var a = Math.max(f0, i), b = Math.min(f1, i + 1);
+      if (b - a > 1e-9) ws.push(i, (b - a) / cw);
+    }
+    tab.push(ws);
+  }
+  return tab;
+}
+function resizeArea(g, w, h, dw, dh) {
+  if (dw === w && dh === h) return g;
+  var tx = areaTab(w, dw), ty = areaTab(h, dh), tmp = new Float32Array(dw * h), out = new Uint8Array(dw * dh);
+  for (var y = 0; y < h; y++) {
+    var r = y * w;
+    for (var x = 0; x < dw; x++) {
+      var t = tx[x], v = 0;
+      for (var k = 0; k < t.length; k += 2) v += g[r + t[k]] * t[k + 1];
+      tmp[y * dw + x] = v;
+    }
+  }
+  for (var yy = 0; yy < dh; yy++) {
+    var t2 = ty[yy];
+    for (var xx = 0; xx < dw; xx++) {
+      var s = 0;
+      for (var m = 0; m < t2.length; m += 2) s += tmp[t2[m] * dw + xx] * t2[m + 1];
+      var q = Math.round(s);
+      out[yy * dw + xx] = q < 0 ? 0 : q > 255 ? 255 : q;
+    }
+  }
+  return out;
+}
+// Anh (img/bitmap) + vung cat (toa do anh goc) -> Uint8Array 64*64
+function prep64(img, c) {
+  var w = Math.round(c.w), h = Math.round(c.h), k = 1;
+  if (w * h > MAX_PIX) k = Math.sqrt(MAX_PIX / (w * h));      // anh qua lon: thu nho truoc (tranh het bo nho)
+  var cw = Math.max(1, Math.round(w * k)), ch = Math.max(1, Math.round(h * k));
+  var cv = document.createElement("canvas");
+  cv.width = cw; cv.height = ch;
+  var cx = cv.getContext("2d", {willReadFrequently: true});
+  cx.imageSmoothingQuality = "high";
+  cx.drawImage(img, Math.round(c.x), Math.round(c.y), w, h, 0, 0, cw, ch);
+  var g = toGray(cx.getImageData(0, 0, cw, ch).data, cw * ch);
+  if (Math.max(cw, ch) > MAX_SIDE) {                             // shrink() trong common.py
+    var sc = MAX_SIDE / Math.max(cw, ch), nw = Math.floor(cw * sc), nh = Math.floor(ch * sc);
+    g = resizeArea(g, cw, ch, nw, nh); cw = nw; ch = nh;
+  }
+  return resizeArea(g, cw, ch, SIZE, SIZE);
+}
+
+// ============================== GIAO DIEN ==============================
+var $ = function (id) { return document.getElementById(id); };
+var img = null, crop = null, small = null, scale = 1, drag = null, busy = false, hist = [], cfg = null;
+var view = $("view"), vctx = view.getContext("2d");
+var ACCENT = "#2aa3c7";
+
+function setStatus(ok, txt, detail) {
+  $("dot").className = "dot " + (ok ? "on" : "off");
+  $("stTxt").textContent = txt;
+  $("stTxt2").textContent = detail || "";
+}
+function loadInfo() {
+  fetch("/info", {cache: "no-store"}).then(function (r) { return r.json(); }).then(function (j) {
+    cfg = j;
+    setStatus(j.ready, j.ready ? "Đã kết nối" : "Model lỗi",
+      j.chip + " · " + j.mhz + " MHz · ngưỡng " + j.thr.toFixed(2) + " · RAM trống " + j.free_kb + " KB");
+  }).catch(function () { setStatus(false, "Mất kết nối", "Hãy nối WiFi Pneumonia-Checker rồi tải lại trang."); });
+}
+
+function onFile(ev) {
+  var f = ev.target.files && ev.target.files[0];
+  ev.target.value = "";
+  if (!f) return;
+  var url = URL.createObjectURL(f), im = new Image();
+  im.onload = function () {
+    img = im;
+    crop = {x: 0, y: 0, w: im.naturalWidth, h: im.naturalHeight};
+    setSeg("bFull");
+    $("stage").style.display = "block"; $("cropHint").style.display = "block"; $("cropBtns").style.display = "block";
+    $("prevCard").style.display = "block"; $("result").style.display = "none";
+    layout(); updatePreview();
+  };
+  im.onerror = function () { alert("Không đọc được ảnh này."); };
+  im.src = url;
+}
+$("fCam").addEventListener("change", onFile);
+$("fLib").addEventListener("change", onFile);
+
+function layout() {
+  if (!img) return;
+  var maxW = $("stage").clientWidth, maxH = window.innerHeight * 0.6;
+  scale = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight, 1);
+  var dpr = window.devicePixelRatio || 1;
+  view.style.width = Math.round(img.naturalWidth * scale) + "px";
+  view.style.height = Math.round(img.naturalHeight * scale) + "px";
+  view.width = Math.round(img.naturalWidth * scale * dpr);
+  view.height = Math.round(img.naturalHeight * scale * dpr);
+  draw();
+}
+window.addEventListener("resize", layout);
+
+function draw() {
+  var dpr = window.devicePixelRatio || 1, s = scale * dpr;
+  vctx.drawImage(img, 0, 0, view.width, view.height);
+  var x = crop.x * s, y = crop.y * s, w = crop.w * s, h = crop.h * s;
+  var ins = 2 * dpr;   // thut vao de goc khung van hien khi khung sat mep anh
+  x = Math.max(x, ins); y = Math.max(y, ins);
+  w = Math.min(crop.x * s + crop.w * s, view.width - ins) - x; h = Math.min(crop.y * s + crop.h * s, view.height - ins) - y;
+  vctx.fillStyle = "rgba(0,0,0,.55)";
+  vctx.fillRect(0, 0, view.width, y); vctx.fillRect(0, y + h, view.width, view.height - y - h);
+  vctx.fillRect(0, y, x, h); vctx.fillRect(x + w, y, view.width - x - w, h);
+  vctx.strokeStyle = "#ffffff"; vctx.lineWidth = 1.5 * dpr; vctx.strokeRect(x, y, w, h);
+  // goc khung dang chu L
+  var L = Math.min(22 * dpr, w / 3, h / 3);
+  vctx.strokeStyle = ACCENT; vctx.lineWidth = 4 * dpr; vctx.lineCap = "round";
+  [[x, y, 1, 1], [x + w, y, -1, 1], [x, y + h, 1, -1], [x + w, y + h, -1, -1]].forEach(function (p) {
+    vctx.beginPath(); vctx.moveTo(p[0] + p[2] * L, p[1]); vctx.lineTo(p[0], p[1]); vctx.lineTo(p[0], p[1] + p[3] * L); vctx.stroke();
+  });
+}
+
+function pt(ev) {
+  var b = view.getBoundingClientRect();
+  return {x: (ev.clientX - b.left) / scale, y: (ev.clientY - b.top) / scale};
+}
+view.addEventListener("pointerdown", function (ev) {
+  if (!img) return;
+  var p = pt(ev), tol = 28 / scale, c = crop, mode = null;
+  var corners = {tl: [c.x, c.y], tr: [c.x + c.w, c.y], bl: [c.x, c.y + c.h], br: [c.x + c.w, c.y + c.h]};
+  for (var k in corners) if (Math.abs(p.x - corners[k][0]) < tol && Math.abs(p.y - corners[k][1]) < tol) { mode = k; break; }
+  if (!mode && p.x > c.x && p.x < c.x + c.w && p.y > c.y && p.y < c.y + c.h) mode = "move";
+  if (!mode) return;
+  drag = {mode: mode, p0: p, c0: {x: c.x, y: c.y, w: c.w, h: c.h}};
+  view.setPointerCapture(ev.pointerId);
+  ev.preventDefault();
+});
+view.addEventListener("pointermove", function (ev) {
+  if (!drag) return;
+  var p = pt(ev), dx = p.x - drag.p0.x, dy = p.y - drag.p0.y, c0 = drag.c0;
+  var W = img.naturalWidth, H = img.naturalHeight, minS = Math.max(32, Math.min(W, H) * 0.05);
+  var x0 = c0.x, y0 = c0.y, x1 = c0.x + c0.w, y1 = c0.y + c0.h;
+  if (drag.mode === "move") {
+    var nx = Math.min(Math.max(0, x0 + dx), W - c0.w), ny = Math.min(Math.max(0, y0 + dy), H - c0.h);
+    crop = {x: nx, y: ny, w: c0.w, h: c0.h};
+  } else {
+    if (drag.mode[1] === "l") x0 = Math.min(Math.max(0, x0 + dx), x1 - minS);
+    if (drag.mode[1] === "r") x1 = Math.max(Math.min(W, x1 + dx), x0 + minS);
+    if (drag.mode[0] === "t") y0 = Math.min(Math.max(0, y0 + dy), y1 - minS);
+    if (drag.mode[0] === "b") y1 = Math.max(Math.min(H, y1 + dy), y0 + minS);
+    crop = {x: x0, y: y0, w: x1 - x0, h: y1 - y0};
+  }
+  draw();
+});
+function endDrag() { if (drag) { drag = null; setSeg(null); updatePreview(); } }
+view.addEventListener("pointerup", endDrag);
+view.addEventListener("pointercancel", endDrag);
+
+function setSeg(id) { ["bFull", "bCenter"].forEach(function (b) { $(b).className = b === id ? "on" : ""; }); }
+$("bFull").onclick = function () {
+  crop = {x: 0, y: 0, w: img.naturalWidth, h: img.naturalHeight}; setSeg("bFull"); draw(); updatePreview();
+};
+$("bCenter").onclick = function () {
+  var W = img.naturalWidth, H = img.naturalHeight;
+  crop = {x: W * 0.1, y: H * 0.1, w: W * 0.8, h: H * 0.8}; setSeg("bCenter"); draw(); updatePreview();
+};
+
+function updatePreview() {
+  small = prep64(img, crop);
+  var sc = $("small").getContext("2d"), id = sc.createImageData(SIZE, SIZE), mean = 0, sq = 0;
+  for (var i = 0; i < small.length; i++) {
+    var v = small[i]; id.data[4 * i] = id.data[4 * i + 1] = id.data[4 * i + 2] = v; id.data[4 * i + 3] = 255;
+    mean += v; sq += v * v;
+  }
+  sc.putImageData(id, 0, 0);
+  mean /= small.length;
+  $("flatWarn").style.display = Math.sqrt(sq / small.length - mean * mean) < 8 ? "block" : "none";
+}
+
+function toB64(u8) {
+  var s = "";
+  for (var i = 0; i < u8.length; i += 1024) s += String.fromCharCode.apply(null, u8.subarray(i, i + 1024));
+  return btoa(s);
+}
+
+var TXT = {
+  normal: ["Bình thường", "Mô hình không thấy dấu hiệu viêm phổi."],
+  pneu: ["Nghi viêm phổi", "Mô hình thấy dấu hiệu nghi viêm phổi."],
+  uncertain: ["Không chắc chắn", "Kết quả sát ngưỡng – hãy chỉnh khung hoặc chụp lại rõ hơn."]
+};
+// Vi tri tren thanh: [0,lo) -> 0-33%, [lo,hi) -> 33-67%, [hi,1] -> 67-100%
+function barPos(p, lo, hi) {
+  p = Math.min(1, Math.max(0, p));
+  if (p < lo) return p / lo * 33.33;
+  if (p < hi) return 33.33 + (p - lo) / (hi - lo) * 33.34;
+  return 66.67 + (p - hi) / (1 - hi) * 33.33;
+}
+function pct(p) { return (p * 100).toFixed(1).replace(".", ",") + "%"; }
+$("bSend").onclick = function () {
+  if (!small || busy) return;
+  busy = true; $("bSend").disabled = true; $("bSend").textContent = "Đang phân tích…";
+  var t0 = performance.now();
+  fetch("/predict", {method: "POST", headers: {"Content-Type": "text/plain"}, body: toB64(small)})
+    .then(function (r) { return r.json(); })
+    .then(function (j) {
+      if (j.err) throw new Error(j.err);
+      var rt = performance.now() - t0, t = TXT[j.decision] || [j.label, ""];
+      var R = $("result");
+      R.className = j.decision; R.style.display = "block";
+      $("rTitle").textContent = t[0]; $("rNote").textContent = t[1];
+      $("rPct").textContent = pct(j.p);
+      $("rP").textContent = "Ngưỡng " + pct(j.thr) + "\nVùng không chắc " + pct(j.lo) + "–" + pct(j.hi);
+      $("rP").style.whiteSpace = "pre-line";
+      $("mk").style.left = barPos(j.p, j.lo, j.hi) + "%";
+      $("rMs").textContent = "ESP32 xử lý " + Math.round(j.ms) + " ms";
+      $("rRt").textContent = "Tổng thời gian " + Math.round(rt) + " ms";
+      hist.unshift({d: j.decision, t: t[0], p: j.p, rt: rt});
+      hist = hist.slice(0, 6);
+      $("hist").innerHTML = hist.map(function (h) {
+        return '<li><span class="t ' + h.d + '">' + h.t + '</span><span class="v">' + pct(h.p) + " · " +
+          Math.round(h.rt) + " ms</span></li>";
+      }).join("");
+      $("histCard").style.display = "block";
+      R.scrollIntoView({behavior: "smooth", block: "center"});
+      if (cfg) setStatus(true, "Đã kết nối", $("stTxt2").textContent);
+    })
+    .catch(function (e) { setStatus(false, "Lỗi gửi ảnh", e.message + " – kiểm tra WiFi rồi thử lại."); })
+    .then(function () { busy = false; $("bSend").disabled = false; $("bSend").textContent = "Phân tích"; });
+};
+
+loadInfo();
+</script>
+</body>
+</html>

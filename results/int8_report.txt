@@ -1,0 +1,23 @@
+BAO CAO MODEL INT8 (buoc 4)
+==============================================================================
+Kich thuoc : float32 1587 KB -> int8 630 KB
+Dau vao    : scale 1.000000, zero_point -128   |   Dau ra: scale 0.003906, zero_point -128
+Phep toan  : ADD, CONV_2D, DEPTHWISE_CONV_2D, FULLY_CONNECTED, MEAN, MUL, SOFTMAX  (dang ky trong firmware/src/model.cpp)
+
+Nguong (chon tren VAL, recall PNEUMONIA >= 0.95): 0.09
+Vung khong chac chan: [0.033, 0.22)  -> VAL 4.7% anh, TEST 12.0% anh
+
+[VAL]
+                         nguong     acc     AUC  rec PNEU  rec NORM     bal    FP    FN
+float32                    0.50   0.930   0.995     0.908     1.000   0.954     0    53
+int8                       0.50   0.904   0.994     0.873     1.000   0.936     0    73
+int8 @ nguong              0.09   0.969   0.994     0.963     0.984   0.974     3    21
+
+[TEST]
+                         nguong     acc     AUC  rec PNEU  rec NORM     bal    FP    FN
+float32                    0.50   0.880   0.956     0.949     0.765   0.857    55    20
+int8                       0.50   0.889   0.951     0.928     0.825   0.876    41    28
+int8 @ nguong              0.09   0.841   0.951     0.987     0.598   0.793    94     5
+
+float32 vs int8 tren TEST: lech xac suat trung binh 0.0555, cung nhan 93.8% (nguong 0.09)
+FP = NORMAL bi bao benh, FN = PNEUMONIA bi bo sot. Du an hoc tap - KHONG dung de chan doan.

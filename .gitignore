@@ -1,0 +1,19 @@
+# Moi truong Python
+venv/
+venv-tf/
+__pycache__/
+*.pyc
+
+# Du lieu anh goc (1.2 GB) - tai tu Kaggle, chay scripts/1_split_data.py
+data/
+data_split/
+
+# File build tam cua PlatformIO
+firmware/.pio/
+
+# Cau hinh may ca nhan
+.vscode/
+.claude/
+*.log
+~$*
+Thumbs.db

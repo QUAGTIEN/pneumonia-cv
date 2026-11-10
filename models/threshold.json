@@ -1,0 +1,8 @@
+{
+  "threshold": 0.09,
+  "uncertain_lo": 0.033,
+  "uncertain_hi": 0.22,
+  "min_recall_val": 0.95,
+  "uncertain_max_val": 0.05,
+  "chosen_on": "val"
+}

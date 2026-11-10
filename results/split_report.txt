@@ -1,0 +1,11 @@
+BAO CAO CHIA DU LIEU
+============================================
+seed=42, val_ratio=0.15
+
+Tap         NORMAL   PNEUMONIA      Tong
+train         1160        3310      4470
+val            189         573       762
+test           234         390       624
+
+Ti le PNEUMONIA/NORMAL o tap train: 2.85
+(Ti le > 1 nghia la du lieu lech; Module 3 se dung class weights de bu.)
